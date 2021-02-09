@@ -1,8 +1,36 @@
+import {capitalize} from '../core/utils';
+
 export class DomListener {
-  constructor(root) {
-    if (!root) {
+  constructor($root, listeners = []) {
+    if (!$root) {
       throw new Error('not root provided for DomListener');
     }
-    this.$root = root;
+    this.$root = $root;
+    this.listeners = listeners;
   }
+
+  initDomListeners() {
+    this.listeners.forEach((listener) => {
+      const method = getMethodName(listener);
+      if (!this[method]) {
+        throw new Error(`no method ${listener} for ${this.name}`);
+      }
+      this.method = this[method].bind(this);
+      this.$root.on(listener, this[method]);
+    });
+  }
+  removeDomListeners() {
+    this.listeners.forEach((listener) => {
+      const method = getMethodName(listener);
+      if (!this[method]) {
+        throw new Error(`no deleted method ${listener} for ${this.name}`);
+      }
+      this.$root.off(listener, this[method]);
+    });
+  }
+}
+
+
+function getMethodName(methodName) {
+  return 'on' + capitalize(methodName);
 }
