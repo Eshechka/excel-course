@@ -15,7 +15,7 @@ export class DomListener {
       if (!this[method]) {
         throw new Error(`no method ${listener} for ${this.name}`);
       }
-      this.method = this[method].bind(this);
+      this[method] = this[method].bind(this);
       this.$root.on(listener, this[method]);
     });
   }

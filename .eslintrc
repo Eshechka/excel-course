@@ -8,6 +8,9 @@
     "rules": {
         "require-jsdoc": "off",
         "linebreak-style": "off"
+        // ,
+        // "guard-for-in": "off"
+        
     },
     "extends": ["eslint:recommended", "google"]
 }
