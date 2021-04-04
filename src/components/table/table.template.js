@@ -19,8 +19,9 @@ export function createTable(rowsCount) {
             </div>`;
   }
   function createCol(colLetter) {
-    return `<div class="column">
+    return `<div class="column" data-resizable="true">
               ${colLetter}
+              <div class="column__resizer" data-resizer="col"></div>
             </div>`;
   }
   function createCell() {
