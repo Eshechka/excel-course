@@ -25,8 +25,14 @@ class Dom {
     } else {
       this.$el.appendChild(node);
     }
-
     return this;
+  }
+
+  on(eventName, cb) {
+    this.$el.addEventListener(eventName, cb);
+  }
+  off(eventName, cb) {
+    this.$el.removeEventListener(eventName, cb);
   }
 }
 
