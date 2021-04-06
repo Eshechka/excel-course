@@ -23,6 +23,14 @@ class Dom {
     return this.$el.closest(selector);
   }
 
+  findAll(selector) {
+    return this.$el.querySelectorAll(selector);
+  }
+
+  get dataset() {
+    return this.$el.dataset;
+  }
+
   append(node) {
     if (node instanceof Dom) {
       node = node.$el;
@@ -42,7 +50,7 @@ class Dom {
   off(eventName, cb) {
     this.$el.removeEventListener(eventName, cb);
   }
-  style(stylesObject) {
+  style(stylesObject = {}) {
     for (const key in stylesObject) {
       if ({}.hasOwnProperty.call(stylesObject, key)) {
         this.$el.style[key] = stylesObject[key];
@@ -60,4 +68,3 @@ $.create = (tagName, classes = '') => {
   el.classList.add(classes);
   return $(el);
 };
-
