@@ -11,31 +11,42 @@ export function createTable(rowsCount) {
 
   function createRow(rowNumber, columnsMarkup) {
     const rowInfo = rowNumber ? rowNumber : '';
-    return `<div class="row">
-              <div class="row-info">${rowInfo}</div>
+    const resizer = rowNumber ?
+        `<div class="row__resizer" data-resizer="row"></div>` :
+        '';
+    return `<div class="row" data-resizable="true">
+              <div class="row-info">${rowInfo}
+                ${resizer}
+              </div>
               <div class="row-data">
                 ${columnsMarkup}
               </div>
             </div>`;
   }
   function createCol(colLetter) {
-    return `<div class="column">
-              ${colLetter}
+    return `<div class="column" 
+              data-resizable="true" 
+              data-colletter=${colLetter}>${colLetter}
+                <div class="column__resizer" data-resizer="col">
+              </div>
             </div>`;
   }
-  function createCell() {
-    return `<div class="cell" contenteditable="">
+  function createCell(dataCol) {
+    return `<div class="cell" contenteditable="" data-col=${dataCol}>
             </div>`;
+  }
+  function createChar(num) {
+    return String.fromCharCode(CODES.from + num);
   }
 
   cols += new Array(columnsAmount)
       .fill('')
-      .map((item, ndx) => String.fromCharCode(CODES.from + ndx))
+      .map((_, ndx) => createChar(ndx))
       .map((item) => createCol(item))
       .join('');
   cells += new Array(columnsAmount)
       .fill('')
-      .map((item) => createCell())
+      .map((_, ndx) => createCell(createChar(ndx)))
       .join('');
 
   rows += createRow(null, cols);
@@ -45,26 +56,3 @@ export function createTable(rowsCount) {
   }
   return rows;
 }
-
-// return `
-//   <div class="row">
-//     <div class="row-info"></div>
-//      <div class="row-data">
-//       <div class="column">
-//         A
-//       </div>
-//       <div class="column">
-//         B
-//       </div>
-//     </div>
-//   </div>
-//   <div class="row">
-//     <div class="row-info">
-//       1
-//     </div>
-//     <div class="row-data">
-//       <div class="cell selected" contenteditable="">A1</div>
-//       <div class="cell" contenteditable="">B2</div>
-//       <div class="cell" contenteditable="">C3</div>
-//     </div>
-//   </div>

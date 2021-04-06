@@ -1,5 +1,7 @@
 import {ExcelComponent} from '../../core/ExcelComponent';
 import {createTable} from './table.template.js';
+import {resizeHandler} from './table.resize.js';
+import {shouldResize} from './table.functions.js';
 
 export class Table extends ExcelComponent {
   static className = 'excel__table';
@@ -7,7 +9,7 @@ export class Table extends ExcelComponent {
   constructor(root) {
     super(root, {
       name: 'Table',
-      listeners: ['click'],
+      listeners: ['mousedown'],
     });
   }
 
@@ -15,7 +17,9 @@ export class Table extends ExcelComponent {
     return createTable(10);
   }
 
-  onClick() {
-    console.log('click table');
+  onMousedown(e) {
+    if (shouldResize(e)) {
+      resizeHandler(e, this.$root);
+    }
   }
 }
