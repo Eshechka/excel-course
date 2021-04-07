@@ -21,12 +21,12 @@ export class Excel {
       root.append(el);
       return component;
     });
-    this.components.forEach((component) => component.init());
     return root;
   }
 
   render() {
     this.$el.append(this.getRoot());
+    this.components.forEach((component) => component.init());
   }
 }
 

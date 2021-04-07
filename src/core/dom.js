@@ -27,6 +27,19 @@ class Dom {
     return this.$el.querySelectorAll(selector);
   }
 
+  find(selector) {
+    return $(this.$el.querySelector(selector));
+  }
+
+  addClass(classname = '') {
+    this.$el.classList.add(classname);
+  }
+  removeClass(classname) {
+    if (this.$el.classList.contains(classname)) {
+      this.$el.classList.remove(classname);
+    }
+  }
+
   get dataset() {
     return this.$el.dataset;
   }
