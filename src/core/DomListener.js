@@ -10,6 +10,9 @@ export class DomListener {
   initEvents() {
     this.$listeners.forEach((eventName) => {
       const methodName = 'on' + capitalize(eventName);
+      if (!this[methodName]) {
+        throw new Error(`method ${methodName} do not provided for DomListener`);
+      }
       this[methodName] = this[methodName].bind(this);
       this.$root.on(eventName, this[methodName]);
     });

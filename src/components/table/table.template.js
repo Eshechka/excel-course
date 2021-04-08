@@ -36,6 +36,7 @@ export function createTable(rowsCount) {
               class="cell" 
               contenteditable="" 
               data-col=${dataCol}
+              data-cell=true
               data-id=${dataCol}${dataRow}
             ></div>`;
   }
@@ -58,6 +59,7 @@ export function createTable(rowsCount) {
         .join('');
 
     rows += createRow(row, cells);
+    cells = [];
   }
   return rows;
 }

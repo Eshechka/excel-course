@@ -1,9 +1,9 @@
 import {ExcelComponent} from '../../core/ExcelComponent';
+import {$} from '../../core/dom.js';
 import {createTable} from './table.template.js';
 import {resizeHandler} from './table.resize.js';
-import {shouldResize} from './table.functions.js';
+import {shouldResize, isCell} from './table.functions.js';
 import {TableSelection} from './TableSelection.js';
-import {$} from '../../core/dom.js';
 
 export class Table extends ExcelComponent {
   static className = 'excel__table';
@@ -11,7 +11,7 @@ export class Table extends ExcelComponent {
   constructor(root) {
     super(root, {
       name: 'Table',
-      listeners: ['mousedown', 'click'],
+      listeners: ['mousedown'],
     });
     this.selection = new TableSelection;
   }
@@ -27,17 +27,25 @@ export class Table extends ExcelComponent {
     return createTable(10);
   }
 
-  onClick(e) {
-    if (e.target.dataset.id) {
-      console.log(e.target);
-      const cell = $(e.target);
-      this.selection.unSelectAll();
-      this.selection.select(cell);
-    }
-  }
+  // onClick(e) {
+  //   if (isCell(e)) {
+  //     console.log(e.target);
+  //     const cell = $(e.target);
+  //     this.selection.unSelectAll();
+  //     this.selection.select(cell);
+  //   }
+  // }
   onMousedown(e) {
     if (shouldResize(e)) {
       resizeHandler(e, this.$root);
+    } else if (isCell(e)) {
+      // console.log(e);
+      const cell = $(e.target);
+      if (e.shiftKey) {
+        this.selection.selectGroup(cell, this.$root);
+      } else {
+        this.selection.select(cell);
+      }
     }
   }
 }
