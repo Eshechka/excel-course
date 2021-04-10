@@ -31,6 +31,13 @@ class Dom {
     return $(this.$el.querySelector(selector));
   }
 
+  addressCell() {
+    return {
+      col: this.$el.dataset.id.slice(0, 1),
+      row: this.$el.dataset.id.slice(-1),
+    };
+  }
+
   addClass(classname = '') {
     this.$el.classList.add(classname);
   }
