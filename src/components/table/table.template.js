@@ -1,9 +1,9 @@
-const CODES = {
-  from: 65,
-  to: 90,
-};
+export function createTable(rowsCount, colsFirstLetter, colsLastLetter) {
+  const CODES = {
+    from: colsFirstLetter.charCodeAt(),
+    to: colsLastLetter.charCodeAt(),
+  };
 
-export function createTable(rowsCount) {
   let rows = '';
   let cols = '';
   let cells = '';
@@ -37,7 +37,7 @@ export function createTable(rowsCount) {
               contenteditable="" 
               data-col=${dataCol}
               data-cell=true
-              data-id=${dataCol}${dataRow}
+              data-id=${dataCol}:${dataRow}
             ></div>`;
   }
   function createChar(num) {
@@ -52,7 +52,7 @@ export function createTable(rowsCount) {
 
   rows += createRow(null, cols);
 
-  for (let row=1; row<rowsCount; row++) {
+  for (let row=1; row<=rowsCount; row++) {
     cells += new Array(columnsAmount)
         .fill('')
         .map((_, ndx) => createCell(createChar(ndx), row))

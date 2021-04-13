@@ -31,12 +31,12 @@ export class TableSelection {
       this.select($el);
     } else {
       const selectedCell = this.currentCell;
-      const currentLetter = selectedCell.dataset.id.slice(0, 1);
-      const currentNumber = selectedCell.dataset.id.slice(-1);
+      const currentLetter = selectedCell.addressCell().col;
+      const currentNumber = selectedCell.addressCell().row;
       selectedCell.removeClass('selected');
 
-      const nowLetter = $el.dataset.id.slice(0, 1);
-      const nowNumber = $el.dataset.id.slice(-1);
+      const nowLetter = $el.addressCell().col;
+      const nowNumber = $el.addressCell().row;
 
       const fromNumber = Math.min(currentNumber, nowNumber);
       const toNumber = Math.max(currentNumber, nowNumber);
@@ -48,13 +48,13 @@ export class TableSelection {
 
       for (let number = fromNumber; number <= toNumber; number++) {
         for (let letter = fromLetter; letter <= toLetter; letter++) {
-          const cellId = `${String.fromCharCode(letter)}${number}`;
+          const cellId = `${String.fromCharCode(letter)}:${number}`;
           const $cell = $root.find(`[data-id="${cellId}"]`);
           this.selectedGroup.push($cell);
           $cell.addClass(TableSelection.classGroupSelected);
         }
       }
-      console.log('this.selectedGroup', this.selectedGroup);
+      // console.log('this.selectedGroup', this.selectedGroup);
     }
   }
 }

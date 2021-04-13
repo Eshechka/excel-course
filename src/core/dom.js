@@ -31,10 +31,15 @@ class Dom {
     return $(this.$el.querySelector(selector));
   }
 
+  focus() {
+    this.$el.focus();
+  }
+
   addressCell() {
+    const splitter = this.$el.dataset.id.indexOf(':');
     return {
-      col: this.$el.dataset.id.slice(0, 1),
-      row: this.$el.dataset.id.slice(-1),
+      col: this.$el.dataset.id.slice(0, splitter),
+      row: this.$el.dataset.id.slice(splitter+1),
     };
   }
 
@@ -55,7 +60,6 @@ class Dom {
     if (node instanceof Dom) {
       node = node.$el;
     }
-
     if (Element.prototype.append) {
       this.$el.append(node);
     } else {
