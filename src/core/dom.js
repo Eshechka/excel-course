@@ -35,6 +35,10 @@ class Dom {
     this.$el.focus();
   }
 
+  text(text) {
+    this.$el.textContent = text;
+  }
+
   addressCell() {
     const splitter = this.$el.dataset.id.indexOf(':');
     return {
