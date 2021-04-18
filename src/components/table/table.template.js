@@ -1,9 +1,9 @@
-const CODES = {
-  from: 65,
-  to: 90,
-};
+export function createTable(rowsCount, colsFirstLetter, colsLastLetter) {
+  const CODES = {
+    from: colsFirstLetter.charCodeAt(),
+    to: colsLastLetter.charCodeAt(),
+  };
 
-export function createTable(rowsCount) {
   let rows = '';
   let cols = '';
   let cells = '';
@@ -31,9 +31,14 @@ export function createTable(rowsCount) {
               </div>
             </div>`;
   }
-  function createCell(dataCol) {
-    return `<div class="cell" contenteditable="" data-col=${dataCol}>
-            </div>`;
+  function createCell(dataCol, dataRow) {
+    return `<div 
+              class="cell" 
+              contenteditable="" 
+              data-col=${dataCol}
+              data-cell=true
+              data-id=${dataCol}:${dataRow}
+            ></div>`;
   }
   function createChar(num) {
     return String.fromCharCode(CODES.from + num);
@@ -44,15 +49,17 @@ export function createTable(rowsCount) {
       .map((_, ndx) => createChar(ndx))
       .map((item) => createCol(item))
       .join('');
-  cells += new Array(columnsAmount)
-      .fill('')
-      .map((_, ndx) => createCell(createChar(ndx)))
-      .join('');
 
   rows += createRow(null, cols);
 
-  for (let i=1; i<rowsCount; i++) {
-    rows += createRow(i, cells);
+  for (let row=1; row<=rowsCount; row++) {
+    cells += new Array(columnsAmount)
+        .fill('')
+        .map((_, ndx) => createCell(createChar(ndx), row))
+        .join('');
+
+    rows += createRow(row, cells);
+    cells = [];
   }
   return rows;
 }

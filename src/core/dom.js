@@ -27,6 +27,50 @@ class Dom {
     return this.$el.querySelectorAll(selector);
   }
 
+  find(selector) {
+    return $(this.$el.querySelector(selector));
+  }
+
+  focus() {
+    this.$el.focus();
+  }
+  unfocus() {
+    this.$el.blur();
+  }
+
+  text(text) {
+    if (text && typeof text === 'number') {
+      text = text + '';
+    }
+    if (typeof text === 'string') {
+      this.$el.textContent = text;
+      return this;
+    }
+    if (this.$el.tagName.toLowerCase() === 'input') {
+      return this.$el.value.trim();
+    }
+    return this.$el.textContent.trim();
+  }
+
+  addressCell() {
+    const splitter = this.$el.dataset.id.indexOf(':');
+    return {
+      col: this.$el.dataset.id.slice(0, splitter),
+      row: this.$el.dataset.id.slice(splitter+1),
+    };
+  }
+
+  addClass(classname = '') {
+    this.$el.classList.add(classname);
+    return this;
+  }
+  removeClass(classname) {
+    if (this.$el.classList.contains(classname)) {
+      this.$el.classList.remove(classname);
+    }
+    return this;
+  }
+
   get dataset() {
     return this.$el.dataset;
   }
@@ -35,7 +79,6 @@ class Dom {
     if (node instanceof Dom) {
       node = node.$el;
     }
-
     if (Element.prototype.append) {
       this.$el.append(node);
     } else {

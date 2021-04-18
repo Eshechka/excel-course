@@ -1,13 +1,23 @@
 import {DomListener} from './DomListener';
 
 export class ExcelComponent extends DomListener {
-  constructor(root, options) {
+  constructor(root, options = {}) {
     super(root, options.listeners || []);
-    if (options.name) this.name = options.name;
+    this.name = options.name || '';
+    this.emitter = options.emitter || {};
+    this.unsubs = [];
   }
 
   toHTML() {
     return '';
+  }
+
+  $emit(eventName, ...args) {
+    this.emitter.emit(eventName, ...args);
+  }
+  $on(eventName, cb) {
+    const unsub = this.emitter.subscribe(eventName, cb);
+    this.unsubs.push(unsub);
   }
 
   init() {
@@ -15,5 +25,8 @@ export class ExcelComponent extends DomListener {
   }
   remove() {
     this.removeEvents();
+    this.unsubs.forEach((unsub) => {
+      unsub();
+    });
   }
 }
