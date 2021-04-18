@@ -15,5 +15,10 @@ export class Emitter {
   subscribe(eventName, cb) {
     this.listeners[eventName] = this.listeners[eventName] || [];
     this.listeners[eventName].push(cb);
+    return () => {
+      this.listeners[eventName] = this.listeners[eventName].filter(
+          (listener) => listener !== cb
+      );
+    };
   }
 }

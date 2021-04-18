@@ -14,7 +14,7 @@ export class Table extends ExcelComponent {
   constructor(root, options) {
     super(root, {
       name: 'Table',
-      listeners: ['mousedown', 'keydown'],
+      listeners: ['mousedown', 'keydown', 'click'],
       ...options,
     });
     this.selection = new TableSelection;
@@ -25,9 +25,19 @@ export class Table extends ExcelComponent {
     const cell = this.$root.find('[data-id="A:1"]');
     this.selection.select(cell);
     cell.focus();
-    this.emitter.subscribe(
+    this.$emit('table:selectCell', cell);
+
+    this.$on(
         'formula:input',
         (data) => this.selection.currentCell.text(data)
+    );
+    this.$on(
+        'formula:lostfocus',
+        () => this.selection.focus()
+    );
+    this.$on(
+        'formula:getfocus',
+        () => this.selection.unfocus()
     );
   }
 
@@ -39,6 +49,12 @@ export class Table extends ExcelComponent {
     );
   }
 
+  onClick(e) {
+    const cell = $(e.target);
+    this.selection.select(cell);
+    this.$emit('table:selectCell', cell);
+  }
+
   onKeydown(e) {
     const keys = [
       'ArrowDown',
@@ -48,6 +64,7 @@ export class Table extends ExcelComponent {
       'Enter',
       'Tab',
     ];
+    let newCell = '';
 
     if (keys.includes(e.key) && !e.shiftKey) {
       e.preventDefault();
@@ -55,7 +72,7 @@ export class Table extends ExcelComponent {
       const cell = $(e.target);
       const MAX_COLS = Table.COLS_LAST_LETTER.charCodeAt();
       const MIN_COLS = Table.COLS_FIRST_LETTER.charCodeAt();
-      const newCell = goNextCell(
+      newCell = goNextCell(
           key,
           cell,
           this.$root,
@@ -63,9 +80,12 @@ export class Table extends ExcelComponent {
           MIN_COLS,
           Table.ROWS_AMOUNT,
       );
-      this.selection.select(newCell);
-      newCell.focus();
     }
+
+    if (!newCell) newCell = this.selection.currentCell;
+    this.selection.select(newCell);
+    newCell.focus();
+    this.$emit('table:inputCell', newCell);
   }
 
   onMousedown(e) {

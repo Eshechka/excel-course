@@ -10,10 +10,16 @@ export class TableSelection {
   select($el) {
     this.unSelectAll();
     this.selectedGroup = [];
-
     this.currentCell = $el;
     this.selectedGroup.push($el);
     $el.addClass(TableSelection.classSelected);
+  }
+  unfocus() {
+    this.currentCell.removeClass(TableSelection.classSelected);
+  }
+  focus() {
+    this.currentCell.addClass(TableSelection.classSelected);
+    this.currentCell.focus();
   }
   unSelectAll() {
     if (this.selectedGroup.length === 1) {
@@ -54,7 +60,6 @@ export class TableSelection {
           $cell.addClass(TableSelection.classGroupSelected);
         }
       }
-      // console.log('this.selectedGroup', this.selectedGroup);
     }
   }
 }

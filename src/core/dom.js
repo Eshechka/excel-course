@@ -34,9 +34,22 @@ class Dom {
   focus() {
     this.$el.focus();
   }
+  unfocus() {
+    this.$el.blur();
+  }
 
   text(text) {
-    this.$el.textContent = text;
+    if (text && typeof text === 'number') {
+      text = text + '';
+    }
+    if (typeof text === 'string') {
+      this.$el.textContent = text;
+      return this;
+    }
+    if (this.$el.tagName.toLowerCase() === 'input') {
+      return this.$el.value.trim();
+    }
+    return this.$el.textContent.trim();
   }
 
   addressCell() {
@@ -49,11 +62,13 @@ class Dom {
 
   addClass(classname = '') {
     this.$el.classList.add(classname);
+    return this;
   }
   removeClass(classname) {
     if (this.$el.classList.contains(classname)) {
       this.$el.classList.remove(classname);
     }
+    return this;
   }
 
   get dataset() {
