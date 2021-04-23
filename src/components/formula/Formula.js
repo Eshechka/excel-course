@@ -17,23 +17,27 @@ export class Formula extends ExcelComponent {
 
     this.$formula = this.$root.find('[data-id="formula-input"]');
 
-    this.$on(
-        'table:selectCell',
-        (selectedCell) => {
-          this.$formula.text(selectedCell.text());
-        }
-    );
-    this.$on(
-        'table:inputCell',
-        (unputCell) => {
-          this.$formula.text(unputCell.text());
-        }
-    );
+    // this.$subscribe((state) => {
+    //   console.log('State from formula:', state);
+    // });
+
+    // this.$on(
+    //     'table:selectCell',
+    //     (selectedCell) => {
+    //       this.$formula.text(selectedCell.text());
+    //     }
+    // );
+    // this.$on(
+    //     'table:inputCell',
+    //     (unputCell) => {
+    //       this.$formula.text(unputCell.text());
+    //     }
+    // );
   }
 
   onInput(e) {
-    const text = $(e.target).text();
-    this.$emit('formula:input', text);
+    // const text = $(e.target).text();
+    // this.$emit('formula:input', text);
   }
   onClick(e) {
     const $target = $(e.target);
@@ -41,6 +45,8 @@ export class Formula extends ExcelComponent {
       return;
     }
     this.$emit('formula:getfocus');
+
+    this.$dispatch({type: 'formula click'});
   }
   onKeydown(e) {
     const keys = ['Enter', 'Tab'];

@@ -4,6 +4,7 @@ import {createTable} from './table.template.js';
 import {resizeHandler} from './table.resize.js';
 import {shouldResize, isCell, goNextCell} from './table.functions.js';
 import {TableSelection} from './TableSelection.js';
+import * as actions from '../../redux/typesActions';
 
 export class Table extends ExcelComponent {
   static ROWS_AMOUNT = 10;
@@ -25,20 +26,24 @@ export class Table extends ExcelComponent {
     const cell = this.$root.find('[data-id="A:1"]');
     this.selection.select(cell);
     cell.focus();
-    this.$emit('table:selectCell', cell);
+    // this.$emit('table:selectCell', cell);
 
-    this.$on(
-        'formula:input',
-        (data) => this.selection.currentCell.text(data)
-    );
-    this.$on(
-        'formula:lostfocus',
-        () => this.selection.focus()
-    );
-    this.$on(
-        'formula:getfocus',
-        () => this.selection.unfocus()
-    );
+    // this.$subscribe((state) => {
+    //   console.log('State from table:', state);
+    // });
+
+    // this.$on(
+    //     'formula:input',
+    //     (data) => this.selection.currentCell.text(data)
+    // );
+    // this.$on(
+    //     'formula:lostfocus',
+    //     () => this.selection.focus()
+    // );
+    // this.$on(
+    //     'formula:getfocus',
+    //     () => this.selection.unfocus()
+    // );
   }
 
   toHTML() {
@@ -50,9 +55,12 @@ export class Table extends ExcelComponent {
   }
 
   onClick(e) {
-    const cell = $(e.target);
-    this.selection.select(cell);
-    this.$emit('table:selectCell', cell);
+    if (e.target.dataset['cell']) {
+      const cell = $(e.target);
+      this.selection.select(cell);
+      // this.$emit('table:selectCell', cell);
+      // this.$dispatch({type: 'table'});
+    }
   }
 
   onKeydown(e) {
@@ -85,12 +93,17 @@ export class Table extends ExcelComponent {
     if (!newCell) newCell = this.selection.currentCell;
     this.selection.select(newCell);
     newCell.focus();
-    this.$emit('table:inputCell', newCell);
+    // this.$emit('table:inputCell', newCell);
+  }
+
+  async resizeTable(e) {
+    const data = await resizeHandler(e, this.$root);
+    this.$dispatch(actions.tableResize(data));
   }
 
   onMousedown(e) {
     if (shouldResize(e)) {
-      resizeHandler(e, this.$root);
+      this.resizeTable(e);
     } else if (isCell(e)) {
       const cell = $(e.target);
       if (e.shiftKey) {
