@@ -8,13 +8,12 @@ import {storage} from './components/table/table.functions';
 import {createStore} from './core/createStore';
 import {rootReducer} from './redux/rootReducer';
 
-const store = createStore(rootReducer, {
-  colState: {},
-});
+const state = JSON.parse(localStorage.getItem('resize-data'));
+const store = createStore(rootReducer, state);
 
 store.subscribe((state) => {
   console.log('state', state);
-  storage('resize-data', JSON.stringify(state));
+  storage('resize-data', state);
 });
 
 const excel = new Excel('#app', {

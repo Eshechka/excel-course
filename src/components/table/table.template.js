@@ -1,4 +1,12 @@
-export function createTable(rowsCount, colsFirstLetter, colsLastLetter) {
+function getWidthCol(colState, colLetter) {
+  return colState[colLetter] || 120;
+}
+
+export function createTable(
+    rowsCount,
+    colsFirstLetter,
+    colsLastLetter,
+    colState = {}) {
   const CODES = {
     from: colsFirstLetter.charCodeAt(),
     to: colsLastLetter.charCodeAt(),
@@ -23,22 +31,25 @@ export function createTable(rowsCount, colsFirstLetter, colsLastLetter) {
               </div>
             </div>`;
   }
-  function createCol(colLetter) {
+  function createCol(colLetter, widthCol) {
     return `<div class="column" 
-              data-resizable="true" 
-              data-colletter=${colLetter}>${colLetter}
-                <div class="column__resizer" data-resizer="col">
-              </div>
-            </div>`;
+    data-resizable="true" 
+    data-colletter=${colLetter}
+    style="width: ${widthCol}px">
+      ${colLetter}
+      <div class="column__resizer" data-resizer="col">
+      </div>
+    </div>`;
   }
-  function createCell(dataCol, dataRow) {
+  function createCell(dataCol, dataRow, widthCol) {
     return `<div 
-              class="cell" 
-              contenteditable="" 
-              data-col=${dataCol}
-              data-cell=true
-              data-id=${dataCol}:${dataRow}
-            ></div>`;
+    class="cell" 
+    contenteditable="" 
+    data-col=${dataCol}
+    data-cell=true
+    data-id=${dataCol}:${dataRow}
+    style="width: ${widthCol}px"
+    ></div>`;
   }
   function createChar(num) {
     return String.fromCharCode(CODES.from + num);
@@ -47,7 +58,10 @@ export function createTable(rowsCount, colsFirstLetter, colsLastLetter) {
   cols += new Array(columnsAmount)
       .fill('')
       .map((_, ndx) => createChar(ndx))
-      .map((item) => createCol(item))
+      .map((item) => {
+        const widthCol = getWidthCol(colState, item);
+        return createCol(item, widthCol);
+      })
       .join('');
 
   rows += createRow(null, cols);
@@ -55,7 +69,11 @@ export function createTable(rowsCount, colsFirstLetter, colsLastLetter) {
   for (let row=1; row<=rowsCount; row++) {
     cells += new Array(columnsAmount)
         .fill('')
-        .map((_, ndx) => createCell(createChar(ndx), row))
+        .map((_, ndx) => {
+          const colLetter = createChar(ndx);
+          const widthCol = getWidthCol(colState, colLetter);
+          return createCell(colLetter, row, widthCol);
+        })
         .join('');
 
     rows += createRow(row, cells);

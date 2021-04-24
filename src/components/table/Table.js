@@ -4,7 +4,7 @@ import {createTable} from './table.template.js';
 import {resizeHandler} from './table.resize.js';
 import {shouldResize, isCell, goNextCell} from './table.functions.js';
 import {TableSelection} from './TableSelection.js';
-import * as actions from '../../redux/typesActions';
+import * as actions from '../../redux/actions';
 
 export class Table extends ExcelComponent {
   static ROWS_AMOUNT = 10;
@@ -26,31 +26,14 @@ export class Table extends ExcelComponent {
     const cell = this.$root.find('[data-id="A:1"]');
     this.selection.select(cell);
     cell.focus();
-    // this.$emit('table:selectCell', cell);
-
-    // this.$subscribe((state) => {
-    //   console.log('State from table:', state);
-    // });
-
-    // this.$on(
-    //     'formula:input',
-    //     (data) => this.selection.currentCell.text(data)
-    // );
-    // this.$on(
-    //     'formula:lostfocus',
-    //     () => this.selection.focus()
-    // );
-    // this.$on(
-    //     'formula:getfocus',
-    //     () => this.selection.unfocus()
-    // );
   }
 
   toHTML() {
     return createTable(
         Table.ROWS_AMOUNT,
         Table.COLS_FIRST_LETTER,
-        Table.COLS_LAST_LETTER
+        Table.COLS_LAST_LETTER,
+        this.store.getState().colState,
     );
   }
 
@@ -98,6 +81,7 @@ export class Table extends ExcelComponent {
 
   async resizeTable(e) {
     const data = await resizeHandler(e, this.$root);
+    console.log(data);
     this.$dispatch(actions.tableResize(data));
   }
 
