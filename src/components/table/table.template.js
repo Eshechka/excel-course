@@ -1,12 +1,25 @@
 function getWidthCol(colState, colLetter) {
-  return colState[colLetter] || 120;
+  return (colState[colLetter] || 120) + 'px';
+}
+function getHeigthRow(rowState, rowNumber) {
+  return (rowState[rowNumber] || 24) + 'px';
+}
+
+function throwWithSizes(colState, row = '') {
+  return function(colLetter) {
+    return {
+      colLetter,
+      row,
+      widthCol: getWidthCol(colState, colLetter),
+    };
+  };
 }
 
 export function createTable(
     rowsCount,
     colsFirstLetter,
     colsLastLetter,
-    colState = {}) {
+    state = {}) {
   const CODES = {
     from: colsFirstLetter.charCodeAt(),
     to: colsLastLetter.charCodeAt(),
@@ -17,12 +30,14 @@ export function createTable(
   let cells = '';
   const columnsAmount = CODES.to - CODES.from + 1;
 
-  function createRow(rowNumber, columnsMarkup) {
+  function createRow(rowNumber, columnsMarkup, rowHeight) {
     const rowInfo = rowNumber ? rowNumber : '';
     const resizer = rowNumber ?
         `<div class="row__resizer" data-resizer="row"></div>` :
         '';
-    return `<div class="row" data-resizable="true">
+    return `<div class="row" data-resizable="true" data-rownumber=${rowInfo}
+            style="height: ${rowHeight}"
+            >
               <div class="row-info">${rowInfo}
                 ${resizer}
               </div>
@@ -31,37 +46,35 @@ export function createTable(
               </div>
             </div>`;
   }
-  function createCol(colLetter, widthCol) {
+  function createCol({colLetter, widthCol}) {
     return `<div class="column" 
     data-resizable="true" 
     data-colletter=${colLetter}
-    style="width: ${widthCol}px">
+    style="width: ${widthCol}">
       ${colLetter}
       <div class="column__resizer" data-resizer="col">
       </div>
     </div>`;
   }
-  function createCell(dataCol, dataRow, widthCol) {
+  function createCell({colLetter, row, widthCol}) {
     return `<div 
     class="cell" 
     contenteditable="" 
-    data-col=${dataCol}
+    data-col=${colLetter}
     data-cell=true
-    data-id=${dataCol}:${dataRow}
-    style="width: ${widthCol}px"
+    data-id=${colLetter}:${row}
+    style="width: ${widthCol}"
     ></div>`;
   }
-  function createChar(num) {
+  function createChar(_, num) {
     return String.fromCharCode(CODES.from + num);
   }
 
   cols += new Array(columnsAmount)
       .fill('')
-      .map((_, ndx) => createChar(ndx))
-      .map((item) => {
-        const widthCol = getWidthCol(colState, item);
-        return createCol(item, widthCol);
-      })
+      .map(createChar)
+      .map(throwWithSizes(state.colState))
+      .map(createCol)
       .join('');
 
   rows += createRow(null, cols);
@@ -69,14 +82,13 @@ export function createTable(
   for (let row=1; row<=rowsCount; row++) {
     cells += new Array(columnsAmount)
         .fill('')
-        .map((_, ndx) => {
-          const colLetter = createChar(ndx);
-          const widthCol = getWidthCol(colState, colLetter);
-          return createCell(colLetter, row, widthCol);
-        })
+        .map(createChar)
+        .map(throwWithSizes(state.colState, row))
+        .map(createCell)
         .join('');
 
-    rows += createRow(row, cells);
+    const rowHeight = getHeigthRow(state.rowState, row);
+    rows += createRow(row, cells, rowHeight);
     cells = [];
   }
   return rows;

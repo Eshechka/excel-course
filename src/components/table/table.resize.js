@@ -39,16 +39,19 @@ export function resizeHandler(e, $root) {
     document.onmouseup = () => {
       document.onmousemove = null;
       document.onmouseup = null;
+      let id = '';
       if (typeResizer === 'col') {
         $resizableElement.style({width: value + 'px'});
         cellsCol.forEach((cell) => {
           cell.style({width: value + 'px'});
         });
+        id = $resizableElement.dataset['colletter'];
       } else {
         $resizableElement.style({height: value + 'px'});
+        id = $resizableElement.dataset['rownumber'];
       }
-      const id = $resizableElement.dataset['colletter'];
-      resolve({[`${id}`]: value});
+
+      resolve({[`${id}`]: value, type: typeResizer});
 
       $resizer.style({
         right: 0,

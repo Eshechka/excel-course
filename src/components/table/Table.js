@@ -15,7 +15,7 @@ export class Table extends ExcelComponent {
   constructor(root, options) {
     super(root, {
       name: 'Table',
-      listeners: ['mousedown', 'keydown', 'click'],
+      listeners: ['mousedown', 'keydown', 'input', 'click'],
       ...options,
     });
     this.selection = new TableSelection;
@@ -26,6 +26,11 @@ export class Table extends ExcelComponent {
     const cell = this.$root.find('[data-id="A:1"]');
     this.selection.select(cell);
     cell.focus();
+
+    this.$on('formula:input', this.selection.currentCell.text('1'));
+
+    this.$subscribe((state) => {
+    });
   }
 
   toHTML() {
@@ -33,7 +38,7 @@ export class Table extends ExcelComponent {
         Table.ROWS_AMOUNT,
         Table.COLS_FIRST_LETTER,
         Table.COLS_LAST_LETTER,
-        this.store.getState().colState,
+        this.store.getState(),
     );
   }
 
@@ -41,8 +46,9 @@ export class Table extends ExcelComponent {
     if (e.target.dataset['cell']) {
       const cell = $(e.target);
       this.selection.select(cell);
-      // this.$emit('table:selectCell', cell);
-      // this.$dispatch({type: 'table'});
+      this.$dispatch(actions.inputText({
+        currentText: e.target.textContent,
+      }));
     }
   }
 
@@ -76,12 +82,19 @@ export class Table extends ExcelComponent {
     if (!newCell) newCell = this.selection.currentCell;
     this.selection.select(newCell);
     newCell.focus();
-    // this.$emit('table:inputCell', newCell);
+  }
+
+  onInput(e) {
+    this.$dispatch(actions.inputText({
+      currentText: e.target.textContent,
+      dataState: {
+        [$(e.target).dataset.id]: e.target.textContent,
+      },
+    }));
   }
 
   async resizeTable(e) {
     const data = await resizeHandler(e, this.$root);
-    console.log(data);
     this.$dispatch(actions.tableResize(data));
   }
 
