@@ -37,10 +37,3 @@ function colChange(col, type) {
       return String.fromCharCode(col - 1);
   }
 }
-
-export function storage(key, data = null) {
-  if (!data) {
-    return JSON.parse(localStorage.getItem(key));
-  }
-  localStorage.setItem(key, JSON.stringify(data));
-}

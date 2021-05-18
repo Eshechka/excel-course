@@ -1,4 +1,5 @@
-import {storage} from '../components/table/table.functions.js';
+import {storage} from '../core/utils';
+
 
 const defaultState = {
   rowState: {},

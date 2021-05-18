@@ -1,16 +1,16 @@
 function getWidthCol(colState, colLetter) {
   return (colState[colLetter] || 120) + 'px';
 }
-function getHeigthRow(rowState, rowNumber) {
-  return (rowState[rowNumber] || 24) + 'px';
+function getHeigthRow(state, rowNumber) {
+  return (state.rowState[rowNumber] || 24) + 'px';
 }
 
-function throwWithSizes(colState, row = '') {
+function throwWithSizes(state, row = '') {
   return function(colLetter) {
     return {
       colLetter,
       row,
-      widthCol: getWidthCol(colState, colLetter),
+      widthCol: getWidthCol(state.colState, colLetter),
     };
   };
 }
@@ -64,7 +64,7 @@ export function createTable(
     data-cell=true
     data-id=${colLetter}:${row}
     style="width: ${widthCol}"
-    ></div>`;
+    >${state.dataState[`${colLetter}:${row}`] || ''}</div>`;
   }
   function createChar(_, num) {
     return String.fromCharCode(CODES.from + num);
@@ -73,7 +73,7 @@ export function createTable(
   cols += new Array(columnsAmount)
       .fill('')
       .map(createChar)
-      .map(throwWithSizes(state.colState))
+      .map(throwWithSizes(state))
       .map(createCol)
       .join('');
 
@@ -83,11 +83,11 @@ export function createTable(
     cells += new Array(columnsAmount)
         .fill('')
         .map(createChar)
-        .map(throwWithSizes(state.colState, row))
+        .map(throwWithSizes(state, row))
         .map(createCell)
         .join('');
 
-    const rowHeight = getHeigthRow(state.rowState, row);
+    const rowHeight = getHeigthRow(state, row);
     rows += createRow(row, cells, rowHeight);
     cells = [];
   }

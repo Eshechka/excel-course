@@ -16,6 +16,7 @@ export class Table extends ExcelComponent {
     super(root, {
       name: 'Table',
       listeners: ['mousedown', 'keydown', 'input', 'click'],
+      subscribes: ['colState'],
       ...options,
     });
     this.selection = new TableSelection;
@@ -27,10 +28,7 @@ export class Table extends ExcelComponent {
     this.selection.select(cell);
     cell.focus();
 
-    this.$on('formula:input', this.selection.currentCell.text('1'));
-
-    this.$subscribe((state) => {
-    });
+    this.$on('formula:input', (data) => this.selection.currentCell.text(data));
   }
 
   toHTML() {
@@ -88,7 +86,8 @@ export class Table extends ExcelComponent {
     this.$dispatch(actions.inputText({
       currentText: e.target.textContent,
       dataState: {
-        [$(e.target).dataset.id]: e.target.textContent,
+        id: $(e.target).dataset.id,
+        textContent: e.target.textContent,
       },
     }));
   }

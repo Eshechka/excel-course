@@ -4,10 +4,11 @@ export class ExcelComponent extends DomListener {
   constructor(root, options = {}) {
     super(root, options.listeners || []);
     this.name = options.name || '';
+    this.subscribes = options.subscribes || [];
     this.emitter = options.emitter || {};
     this.store = options.store || {};
     this.unsubs = [];
-    this.unsubsStore = [];
+    // this.unsubsStore = [];
   }
 
   toHTML() {
@@ -25,10 +26,12 @@ export class ExcelComponent extends DomListener {
   $dispatch(action) {
     this.store.dispatch(action);
   }
-  $subscribe(fn) {
-    const unsub = this.store.subscribe(fn);
-    this.unsubsStore.push(unsub);
-  }
+  // $subscribe(fn) {
+  //   const unsub = this.store.subscribe(fn);
+  //   this.unsubsStore.push(unsub);
+  // }
+
+  storeChanged() {}
 
   init() {
     this.initEvents();
@@ -38,6 +41,6 @@ export class ExcelComponent extends DomListener {
     this.unsubs.forEach((unsub) => {
       unsub();
     });
-    this.unsubsStore.unsubscribe();
+    // this.unsubsStore.unsubscribe();
   }
 }
