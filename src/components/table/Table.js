@@ -4,7 +4,9 @@ import {createTable} from './table.template.js';
 import {resizeHandler} from './table.resize.js';
 import {shouldResize, isCell, goNextCell} from './table.functions.js';
 import {TableSelection} from './TableSelection.js';
-import * as actions from '../../redux/actions';
+import * as actions from '../../redux/actions.js';
+import {defaultStyles} from '../../constants.js';
+import {parse} from '../../core/utils';
 
 export class Table extends ExcelComponent {
   static ROWS_AMOUNT = 10;
@@ -16,7 +18,7 @@ export class Table extends ExcelComponent {
     super(root, {
       name: 'Table',
       listeners: ['mousedown', 'keydown', 'input', 'click'],
-      subscribes: ['colState'],
+      subscribes: ['colState', 'currentStyles'],
       ...options,
     });
     this.selection = new TableSelection;
@@ -24,11 +26,35 @@ export class Table extends ExcelComponent {
 
   init() {
     super.init();
-    const cell = this.$root.find('[data-id="A:1"]');
-    this.selection.select(cell);
-    cell.focus();
+    const $cell = this.$root.find('[data-id="A:1"]');
+    const currentText = $cell.dataset.value ?
+          $cell.dataset.value :
+          $cell.text();
+    this.$dispatch(actions.inputText({
+      currentText: currentText,
+    }));
+    this.selection.select($cell);
+    $cell.focus();
 
-    this.$on('formula:input', (data) => this.selection.currentCell.text(data));
+    this.$on('formula:input', (data) => {
+      this.selection.currentCell.attr('data-value', data);
+      this.selection.currentCell.text(parse(data));
+      this.$dispatch(actions.inputText({
+        currentText: data,
+        dataState: {
+          id: this.selection.currentCell.dataset.id,
+          textContent: data,
+        },
+      }));
+    });
+
+    this.$on('toolbar:applyStyle', (value) => {
+      this.selection.applyStyles(value);
+      this.$dispatch(actions.applyStyle({
+        value,
+        ids: this.selection.selectedIds,
+      }));
+    });
   }
 
   toHTML() {
@@ -42,10 +68,15 @@ export class Table extends ExcelComponent {
 
   onClick(e) {
     if (e.target.dataset['cell']) {
-      const cell = $(e.target);
-      this.selection.select(cell);
+      const $cell = $(e.target);
+      const currentText = $cell.dataset.value ?
+          $cell.dataset.value :
+          $cell.text();
       this.$dispatch(actions.inputText({
-        currentText: e.target.textContent,
+        currentText: currentText,
+      }));
+      this.$dispatch(actions.getStyles({
+        currentStyles: $cell.getStyles(Object.keys(defaultStyles)),
       }));
     }
   }
@@ -75,6 +106,12 @@ export class Table extends ExcelComponent {
           MIN_COLS,
           Table.ROWS_AMOUNT,
       );
+      this.$dispatch(actions.inputText({
+        currentText: newCell.text(),
+      }));
+      this.$dispatch(actions.getStyles({
+        currentStyles: newCell.getStyles(Object.keys(defaultStyles)),
+      }));
     }
 
     if (!newCell) newCell = this.selection.currentCell;

@@ -27,6 +27,7 @@ export class Formula extends ExcelComponent {
     const text = $(e.target).text();
     this.$emit('formula:input', text);
   }
+
   onClick(e) {
     const $target = $(e.target);
     if ($target.dataset.id !== 'formula-input') {

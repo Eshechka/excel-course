@@ -9,7 +9,10 @@ export class ExcelComponent extends DomListener {
     this.store = options.store || {};
     this.unsubs = [];
     // this.unsubsStore = [];
+    this.prepare();
   }
+
+  prepare() {}
 
   toHTML() {
     return '';

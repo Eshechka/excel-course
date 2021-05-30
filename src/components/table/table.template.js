@@ -1,3 +1,6 @@
+import {defaultStyles} from '../../constants';
+import {camelToDash, parse} from '../../core/utils.js';
+
 function getWidthCol(colState, colLetter) {
   return (colState[colLetter] || 120) + 'px';
 }
@@ -5,12 +8,19 @@ function getHeigthRow(state, rowNumber) {
   return (state.rowState[rowNumber] || 24) + 'px';
 }
 
-function throwWithSizes(state, row = '') {
+function getCurrentStyles(state, dataId) {
+  return {...defaultStyles, ...state.dataStyles[dataId]};
+}
+
+function throwWithStyles(state, row = '') {
   return function(colLetter) {
     return {
       colLetter,
       row,
       widthCol: getWidthCol(state.colState, colLetter),
+      currentStyles: row === '' ?
+        null :
+        getCurrentStyles(state, `${colLetter}:${row}`),
     };
   };
 }
@@ -56,15 +66,21 @@ export function createTable(
       </div>
     </div>`;
   }
-  function createCell({colLetter, row, widthCol}) {
+  function createCell({colLetter, row, widthCol, currentStyles}) {
+    let styles = '';
+    for (const [key, value] of Object.entries(currentStyles)) {
+      const dashKey = camelToDash(key);
+      styles += `${dashKey}: ${value}; `;
+    }
     return `<div 
     class="cell" 
     contenteditable="" 
     data-col=${colLetter}
     data-cell=true
+    data-value="${state.dataState[`${colLetter}:${row}`] || ''}"
     data-id=${colLetter}:${row}
-    style="width: ${widthCol}"
-    >${state.dataState[`${colLetter}:${row}`] || ''}</div>`;
+    style="width: ${widthCol}; ${styles}"
+    >${parse(state.dataState[`${colLetter}:${row}`]) || ''}</div>`;
   }
   function createChar(_, num) {
     return String.fromCharCode(CODES.from + num);
@@ -73,7 +89,7 @@ export function createTable(
   cols += new Array(columnsAmount)
       .fill('')
       .map(createChar)
-      .map(throwWithSizes(state))
+      .map(throwWithStyles(state))
       .map(createCol)
       .join('');
 
@@ -83,7 +99,7 @@ export function createTable(
     cells += new Array(columnsAmount)
         .fill('')
         .map(createChar)
-        .map(throwWithSizes(state, row))
+        .map(throwWithStyles(state, row))
         .map(createCell)
         .join('');
 

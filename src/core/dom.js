@@ -75,6 +75,14 @@ class Dom {
     return this.$el.dataset;
   }
 
+  attr(name, value) {
+    if (value) {
+      this.$el.setAttribute(name, value);
+      return this.$el;
+    }
+    return this.$el.getAttribute(name);
+  }
+
   append(node) {
     if (node instanceof Dom) {
       node = node.$el;
@@ -99,6 +107,12 @@ class Dom {
         this.$el.style[key] = stylesObject[key];
       }
     }
+  }
+  getStyles(styles = []) {
+    return styles.reduce((result, style) => {
+      result[style] = this.$el.style[style];
+      return result;
+    }, {});
   }
 }
 
