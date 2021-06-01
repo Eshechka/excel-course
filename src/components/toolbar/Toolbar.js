@@ -1,39 +1,48 @@
-import {ExcelComponent} from '../../core/ExcelComponent';
+import {ExcelStoreComponent} from '../../core/ExcelStoreComponent.js';
+import {createToolbar} from './toolbar.template.js';
+import {$} from '../../core/dom.js';
+import {defaultStyles} from '../../constants.js';
+// import * as actions from '../../redux/actions';
 
-export class Toolbar extends ExcelComponent {
+export class Toolbar extends ExcelStoreComponent {
   static className = 'excel__toolbar';
 
-  constructor(root) {
+  constructor(root, options) {
     super(root, {
+      listeners: ['click'],
+      subscribes: ['currentStyles'],
       name: 'Toolbar',
+      ...options,
     });
   }
 
+  prepare() {
+    this.initState(defaultStyles);
+    console.log(this.state);
+  }
+
+  get template() {
+    return createToolbar(this.state);
+  }
+
   toHTML() {
-    return `
-    <div class="button">
-      <i class="material-icons">format_align_left</i>
-    </div>
+    return this.template;
+  }
 
-    <div class="button">
-      <i class="material-icons">format_align_center</i>
-    </div>
+  storeChanged(changes) {
+    if (changes.currentStyles) {
+      this.setState(changes.currentStyles);
+    }
+  }
 
-    <div class="button">
-      <i class="material-icons">format_align_right</i>
-    </div>
-
-    <div class="button">
-      <i class="material-icons">format_bold</i>
-    </div>
-
-    <div class="button">
-      <i class="material-icons">format_italic</i>
-    </div>
-
-    <div class="button">
-      <i class="material-icons">format_underlined</i>
-    </div>
-    `;
+  onClick(e) {
+    const $target = $(e.target);
+    if ($target.dataset.type === 'button') {
+      const value = JSON.parse($target.dataset.value);
+      const key = Object.keys(value)[0];
+      const changedStyle = {[key]: value[key]};
+      this.setState(changedStyle);
+      this.$emit('toolbar:applyStyle', changedStyle);
+    }
   }
 }

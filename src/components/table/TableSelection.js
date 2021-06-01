@@ -62,6 +62,18 @@ export class TableSelection {
       }
     }
   }
+
+  applyStyles(style) {
+    this.selectedGroup.forEach((cell) => {
+      cell.style(style);
+    });
+  }
+
+  get selectedIds() {
+    return this.selectedGroup.map(($el) => {
+      return $el.dataset.id;
+    });
+  }
 }
 
 function minLetter(letter1, letter2) {

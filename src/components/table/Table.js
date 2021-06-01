@@ -4,6 +4,9 @@ import {createTable} from './table.template.js';
 import {resizeHandler} from './table.resize.js';
 import {shouldResize, isCell, goNextCell} from './table.functions.js';
 import {TableSelection} from './TableSelection.js';
+import * as actions from '../../redux/actions.js';
+import {defaultStyles} from '../../constants.js';
+import {parse} from '../../core/utils';
 
 export class Table extends ExcelComponent {
   static ROWS_AMOUNT = 10;
@@ -14,7 +17,8 @@ export class Table extends ExcelComponent {
   constructor(root, options) {
     super(root, {
       name: 'Table',
-      listeners: ['mousedown', 'keydown', 'click'],
+      listeners: ['mousedown', 'keydown', 'input', 'click'],
+      subscribes: ['colState', 'currentStyles'],
       ...options,
     });
     this.selection = new TableSelection;
@@ -22,37 +26,59 @@ export class Table extends ExcelComponent {
 
   init() {
     super.init();
-    const cell = this.$root.find('[data-id="A:1"]');
-    this.selection.select(cell);
-    cell.focus();
-    this.$emit('table:selectCell', cell);
+    const $cell = this.$root.find('[data-id="A:1"]');
+    const currentText = $cell.dataset.value ?
+          $cell.dataset.value :
+          $cell.text();
+    this.$dispatch(actions.inputText({
+      currentText: currentText,
+    }));
+    this.selection.select($cell);
+    $cell.focus();
 
-    this.$on(
-        'formula:input',
-        (data) => this.selection.currentCell.text(data)
-    );
-    this.$on(
-        'formula:lostfocus',
-        () => this.selection.focus()
-    );
-    this.$on(
-        'formula:getfocus',
-        () => this.selection.unfocus()
-    );
+    this.$on('formula:input', (data) => {
+      this.selection.currentCell.attr('data-value', data);
+      this.selection.currentCell.text(parse(data));
+      this.$dispatch(actions.inputText({
+        currentText: data,
+        dataState: {
+          id: this.selection.currentCell.dataset.id,
+          textContent: data,
+        },
+      }));
+    });
+
+    this.$on('toolbar:applyStyle', (value) => {
+      this.selection.applyStyles(value);
+      this.$dispatch(actions.applyStyle({
+        value,
+        ids: this.selection.selectedIds,
+      }));
+    });
   }
 
   toHTML() {
     return createTable(
         Table.ROWS_AMOUNT,
         Table.COLS_FIRST_LETTER,
-        Table.COLS_LAST_LETTER
+        Table.COLS_LAST_LETTER,
+        this.store.getState(),
     );
   }
 
   onClick(e) {
-    const cell = $(e.target);
-    this.selection.select(cell);
-    this.$emit('table:selectCell', cell);
+    if (e.target.dataset['cell']) {
+      const $cell = $(e.target);
+      const currentText = $cell.dataset.value ?
+          $cell.dataset.value :
+          $cell.text();
+      this.$dispatch(actions.inputText({
+        currentText: currentText,
+      }));
+      this.$dispatch(actions.getStyles({
+        currentStyles: $cell.getStyles(Object.keys(defaultStyles)),
+      }));
+    }
   }
 
   onKeydown(e) {
@@ -80,17 +106,37 @@ export class Table extends ExcelComponent {
           MIN_COLS,
           Table.ROWS_AMOUNT,
       );
+      this.$dispatch(actions.inputText({
+        currentText: newCell.text(),
+      }));
+      this.$dispatch(actions.getStyles({
+        currentStyles: newCell.getStyles(Object.keys(defaultStyles)),
+      }));
     }
 
     if (!newCell) newCell = this.selection.currentCell;
     this.selection.select(newCell);
     newCell.focus();
-    this.$emit('table:inputCell', newCell);
+  }
+
+  onInput(e) {
+    this.$dispatch(actions.inputText({
+      currentText: e.target.textContent,
+      dataState: {
+        id: $(e.target).dataset.id,
+        textContent: e.target.textContent,
+      },
+    }));
+  }
+
+  async resizeTable(e) {
+    const data = await resizeHandler(e, this.$root);
+    this.$dispatch(actions.tableResize(data));
   }
 
   onMousedown(e) {
     if (shouldResize(e)) {
-      resizeHandler(e, this.$root);
+      this.resizeTable(e);
     } else if (isCell(e)) {
       const cell = $(e.target);
       if (e.shiftKey) {
