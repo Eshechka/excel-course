@@ -1,10 +1,11 @@
 import {$} from '../../core/dom';
 import {Emitter} from '../../core/Emitter';
 import {StoreSubscriber} from '../../core/StoreSubscriber';
+import * as actions from '../../redux/actions.js';
+
 
 export class Excel {
-  constructor(selector, options) {
-    this.$el = $(selector);
+  constructor(options) {
     this.components = options.components || [];
     this.emitter = new Emitter();
     this.store = options.store;
@@ -21,9 +22,7 @@ export class Excel {
     this.components = this.components.map((Component) => {
       const el = $.create('div', Component.className);
       const component = new Component(el, componentOptions);
-      // if (component.name) {
-      //   window['comp' + component.name] = component;
-      // }
+
       el.html(component.toHTML());
       root.append(el);
       return component;
@@ -31,8 +30,8 @@ export class Excel {
     return root;
   }
 
-  render() {
-    this.$el.append(this.getRoot());
+  init() {
+    this.store.dispatch(actions.changeLastOpen());
     this.subscriber.subscribeComponents(this.components);
     this.components.forEach((component) => component.init());
   }

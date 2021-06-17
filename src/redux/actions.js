@@ -4,6 +4,7 @@ import {
   APPLY_STYLE,
   GET_STYLES,
   CHANGE_TITLE,
+  CHANGE_LASTOPENED,
 } from './typesActions';
 
 export function tableResize(data) {
@@ -38,5 +39,11 @@ export function changeTitle(data) {
   return {
     type: CHANGE_TITLE,
     data,
+  };
+}
+
+export function changeLastOpen() {
+  return {
+    type: CHANGE_LASTOPENED,
   };
 }
