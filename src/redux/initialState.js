@@ -9,14 +9,16 @@ const defaultState = {
   currentText: '',
   dataStyles: {},
   currentStyles: defaultStyles,
+  lastOpened: new Date().toJSON(),
 };
 
-const storageState = storage('excel-state');
-
-export const initialState = storageState ?
+export function initialState(stateKey) {
+  const storageState = storage(stateKey);
+  return storageState ?
   {
     ...defaultState,
     ...storageState,
     currentText: '',
   } :
-  defaultState;
+  {...defaultState};
+}

@@ -4,6 +4,7 @@ import {
   APPLY_STYLE,
   GET_STYLES,
   CHANGE_TITLE,
+  CHANGE_LASTOPENED,
 } from './typesActions';
 
 export function rootReducer(state, action) {
@@ -13,7 +14,7 @@ export function rootReducer(state, action) {
       const oldState = state[field] || {};
       const newState = {
         ...state,
-        [field]: Object.assign(oldState, action.data),
+        [field]: Object.assign({...oldState}, action.data),
       };
       return newState;
     }
@@ -32,15 +33,12 @@ export function rootReducer(state, action) {
       const newState = {
         ...state,
         currentText: action.data.currentText,
-        dataState: Object.assign(oldState, addedDataState),
+        dataState: Object.assign({...oldState}, addedDataState),
       };
       return newState;
     }
     case APPLY_STYLE: {
       // записываем в стейт текущие стили (нажали на тулбар)
-      // A1: '', F4: '',
-      // console.log('state ', state);
-      // console.log('action.data.ids ', action.data.ids);
       const oldCurrentStyles = state.currentStyles || {};
       const newDataStyles = {};
       action.data.ids.forEach((id) => {
@@ -59,7 +57,7 @@ export function rootReducer(state, action) {
       const oldState = state.currentStyles || {};
       const newState = {
         ...state,
-        currentStyles: Object.assign(oldState, action.data.currentStyles),
+        currentStyles: Object.assign({...oldState}, action.data.currentStyles),
       };
       return newState;
     }
@@ -67,6 +65,12 @@ export function rootReducer(state, action) {
       return {
         ...state,
         title: action.data,
+      };
+    }
+    case CHANGE_LASTOPENED: {
+      return {
+        ...state,
+        lastOpened: new Date().toJSON(),
       };
     }
     default:

@@ -4,18 +4,22 @@ import {Header} from '../components/header/Header';
 import {Table} from '../components/table/Table';
 import {Toolbar} from '../components/toolbar/Toolbar';
 import {createStore} from '../core/createStore';
+import {Page} from '../core/router/Page';
 import {debounce, storage} from '../core/utils';
 import {initialState} from '../redux/initialState';
 import {rootReducer} from '../redux/rootReducer';
 
-export class ExcelPage {
+export class ExcelPage extends Page {
   getRoot() {
-    const state = initialState;
-    const store = createStore(rootReducer, state);
+    if (!this.params) {
+      this.params = Date.now().toString();
+      window.location.hash = `#excel/${this.params}`;
+    }
+    const stateKey = `excel:${this.params}`;
+    const store = createStore(rootReducer, initialState(stateKey));
 
     const stateSubscribe = debounce((state) => {
-      console.log('Change state');
-      storage('excel-state', state);
+      storage(`excel:${this.params}`, state);
     }, 300);
 
     store.subscribe(stateSubscribe);
@@ -30,5 +34,9 @@ export class ExcelPage {
 
   afterRender() {
     this.excel.init();
+  }
+
+  destroy() {
+    this.excel.destroy();
   }
 }

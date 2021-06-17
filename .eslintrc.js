@@ -1,0 +1,13 @@
+module.exports = {
+    "parser": "babel-eslint",
+    "env": {
+        "es6": true,
+        "browser": true,
+        "node": true
+    },
+    "rules": {
+        "require-jsdoc": "off",
+        "linebreak-style": "off"
+    },
+    "extends": ["eslint:recommended", "google"]
+};

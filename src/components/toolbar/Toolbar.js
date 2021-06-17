@@ -18,7 +18,6 @@ export class Toolbar extends ExcelStoreComponent {
 
   prepare() {
     this.initState(defaultStyles);
-    console.log(this.state);
   }
 
   get template() {
